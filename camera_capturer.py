@@ -8,8 +8,10 @@ import sys
 
 params = configparser.ConfigParser()
 params.read('parameters.ini')
-
 image_path = params.get('STORAGE', 'path')
+sleep_time = params.getint('VIDEOS', 'sleep_time')
+capture_time = params.getint('VIDEOS', 'capture_time')
+brightness = params.getfloat('VIDEOS', 'brightness')
 
 
 def configure_logger():
@@ -39,9 +41,7 @@ def hierarchical_file(date, suffix):
 
 def lights(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    print(hsv[:, :, 2].mean())
-
-    return True
+    return hsv[:, :, 2].mean() > brightness
 
 
 def take_images():
@@ -57,13 +57,13 @@ def take_images():
     captured = True
     while captured:
         captured, img = cam.read()
-        time.sleep(1)
+        time.sleep(sleep_time)
         if lights(img):
             log.info('Detected light')
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             out = cv2.VideoWriter(hierarchical_file(datetime.now(), 'mp4'),
                                   fourcc, fps, frame_size)
-            end_time = datetime.now() + timedelta(seconds=20)
+            end_time = datetime.now() + timedelta(seconds=capture_time)
             while datetime.now() < end_time:
                 ret, frame = cam.read()
                 out.write(frame)
