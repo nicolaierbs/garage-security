@@ -3,7 +3,6 @@ import subprocess
 import os
 import configparser
 from time import time
-from datetime import datetime
 
 config_section = 'STORAGE'
 params = configparser.ConfigParser()
